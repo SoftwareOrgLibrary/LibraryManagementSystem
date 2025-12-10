@@ -2,11 +2,13 @@ package libmng.app;
  
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.security.SecureRandom;
 import java.util.List;
+import java.util.logging.Logger;
 
 import libmng.domain.Book;
 import libmng.domain.Admin;
-import libmng.domain.CD;
+
 import libmng.domain.Loan;
 import libmng.domain.Media;
 import libmng.domain.User;
@@ -26,6 +28,8 @@ import libmng.service.ex.BorrowingNotAllowedException;
 import libmng.time.RealTimeProvider;
 
 public class Main {
+    private static final Logger logger = Logger.getLogger(Main.class.getName());
+    
     public static void main(String[] args) {
         InMemoryMediaRepository mediaRepository = new InMemoryMediaRepository();
         InMemoryUserRepository userRepository = new InMemoryUserRepository();
@@ -52,15 +56,15 @@ public class Main {
                 c = c.trim();
                 if (c.equals("4")) break;
                 if (c.equals("1")) {
-                    System.out.print("Username: ");
+                    logger.info("Username: ");
                     String u = br.readLine();
-                    System.out.print("Password: ");
+                    logger.info("Password: ");
                     String p = br.readLine();
                     try {
                         authService.login(u, p);
                         adminMenu(br, authService, libraryService, reminderService, sessionManager, userRepository, loanRepository);
                     } catch (Exception e) {
-                        System.out.println("Login failed");
+                        logger.info("Login failed");
                     }
                 } else if (c.equals("2")) {
                     userLoginFlow(br, libraryService, sessionManager, userRepository, loanRepository);
@@ -68,137 +72,137 @@ public class Main {
                     signUpMenu(br, libraryService, adminRepository);
                 }
             } catch (Exception e) {
-                System.out.println("Error: " + e.getMessage());
+                logger.info("Error: " + e.getMessage());
             }
         }
     }
 
     private static void printMainHeader() {
 
-        System.out.println("Library Management System");
+        logger.info("Library Management System");
 
     }
 
     private static void printMainMenu() {
-        System.out.println("1. Admin Login");
-        System.out.println("2. User Login  (optional – future phases)");
-        System.out.println("3. Sign Up");
-        System.out.println("4. Exit");
-        System.out.println("------------------------------------");
-        System.out.print("Enter choice: ");
+        logger.info("1. Admin Login");
+        logger.info("2. User Login  (optional – future phases)");
+        logger.info("3. Sign Up");
+        logger.info("4. Exit");
+        logger.info("------------------------------------");
+        logger.info("Enter choice: ");
     }
 
     private static void adminMenu(BufferedReader br, AuthService auth, LibraryService lib, ReminderService reminders, SessionManager sessions, InMemoryUserRepository users, InMemoryLoanRepository loans) throws Exception {
         while (true) {
 
-            System.out.println("Admin Menu");
+            logger.info("Admin Menu");
 
-            System.out.println("1. Add Book");
-            System.out.println("2. Search Books");
-            System.out.println("3. Register New User");
-            System.out.println("4. Unregister User");
-            System.out.println("5. Borrow Item for User");
-            System.out.println("6. Return Item");
-            System.out.println("7. Pay Fine for User");
-            System.out.println("8. View User Fines");
-            System.out.println("9. Send Overdue Reminders");
-            System.out.println("10. Logout");
-            System.out.println("------------------------------------");
-            System.out.print("Enter choice: ");
+            logger.info("1. Add Book");
+            logger.info("2. Search Books");
+            logger.info("3. Register New User");
+            logger.info("4. Unregister User");
+            logger.info("5. Borrow Item for User");
+            logger.info("6. Return Item");
+            logger.info("7. Pay Fine for User");
+            logger.info("8. View User Fines");
+            logger.info("9. Send Overdue Reminders");
+            logger.info("10. Logout");
+            logger.info("------------------------------------");
+            logger.info("Enter choice: ");
             String c = br.readLine();
             if (c == null) break;
             c = c.trim();
             if (c.equals("10")) { auth.logout(); break; }
             if (c.equals("1")) {
-                System.out.print("Title: "); String t = br.readLine();
-                System.out.print("Author: "); String a = br.readLine();
-                System.out.print("ISBN: "); String i = br.readLine();
-                try { Book b = lib.addBook(t, a, i); System.out.println("Added book id=" + b.getId()); } catch (AuthorizationException e) { System.out.println("Admin required"); }
+                logger.info("Title: "); String t = br.readLine();
+                logger.info("Author: "); String a = br.readLine();
+                logger.info("ISBN: "); String i = br.readLine();
+                try { Book b = lib.addBook(t, a, i); logger.info("Added book id=" + b.getId()); } catch (AuthorizationException e) { logger.info("Admin required"); }
             } else if (c.equals("2")) {
-                System.out.print("Query: "); String q = br.readLine();
+                logger.info("Query: "); String q = br.readLine();
                 List<Media> results = lib.search(q);
-                for (Media m : results) System.out.println(m.getType() + " | id=" + m.getId() + " | title=" + m.getTitle());
+                for (Media m : results) logger.info(m.getType() + " | id=" + m.getId() + " | title=" + m.getTitle());
             } else if (c.equals("3")) {
-                System.out.print("Name: "); String n = br.readLine();
-                System.out.print("Email: "); String e = br.readLine();
+                logger.info("Name: "); String n = br.readLine();
+                logger.info("Email: "); String e = br.readLine();
                 User u = lib.registerUser(n, e);
-                System.out.println("User id=" + u.getId());
+                logger.info("User id=" + u.getId());
             } else if (c.equals("4")) {
-                System.out.print("User id: "); int id = Integer.parseInt(br.readLine());
-                try { lib.unregisterUser("admin", id); System.out.println("Unregistered"); } catch (AuthorizationException ex) { System.out.println("Admin required"); } catch (Exception ex) { System.out.println("Blocked"); }
+                logger.info("User id: "); int id = Integer.parseInt(br.readLine());
+                try { lib.unregisterUser("admin", id); logger.info("Unregistered"); } catch (AuthorizationException ex) { logger.info("Admin required"); } catch (Exception ex) { logger.info("Blocked"); }
             } else if (c.equals("5")) {
-                System.out.print("User id: "); int uid = Integer.parseInt(br.readLine());
-                System.out.print("Item id: "); int iid = Integer.parseInt(br.readLine());
-                try { Loan l = lib.borrowItem(uid, iid); System.out.println("Borrowed, due=" + l.getDueDate()); } catch (BorrowingNotAllowedException ex) { System.out.println("Blocked"); } catch (Exception ex) { System.out.println("Error"); }
+                logger.info("User id: "); int uid = Integer.parseInt(br.readLine());
+                logger.info("Item id: "); int iid = Integer.parseInt(br.readLine());
+                try { Loan l = lib.borrowItem(uid, iid); logger.info("Borrowed, due=" + l.getDueDate()); } catch (BorrowingNotAllowedException ex) { logger.info("Blocked"); } catch (Exception ex) { logger.info("Error"); }
             } else if (c.equals("6")) {
-                System.out.print("Item id: "); int iid = Integer.parseInt(br.readLine());
+                logger.info("Item id: "); int iid = Integer.parseInt(br.readLine());
                 lib.returnItem(iid);
-                System.out.println("Returned if active");
+                logger.info("Returned if active");
             } else if (c.equals("7")) {
-                System.out.print("User id: "); int uid = Integer.parseInt(br.readLine());
-                System.out.print("Amount: "); int amt = Integer.parseInt(br.readLine());
-                try { lib.payFine(uid, amt); System.out.println("Paid"); } catch (Exception ex) { System.out.println("Error"); }
+                logger.info("User id: "); int uid = Integer.parseInt(br.readLine());
+                logger.info("Amount: "); int amt = Integer.parseInt(br.readLine());
+                try { lib.payFine(uid, amt); logger.info("Paid"); } catch (Exception ex) { logger.info("Error"); }
             } else if (c.equals("8")) {
-                System.out.print("User id: "); int uid = Integer.parseInt(br.readLine());
-                try { System.out.println("Outstanding=" + lib.outstandingFines(uid)); } catch (Exception ex) { System.out.println("Error"); }
+                logger.info("User id: "); int uid = Integer.parseInt(br.readLine());
+                try { logger.info("Outstanding=" + lib.outstandingFines(uid)); } catch (Exception ex) { logger.info("Error"); }
             } else if (c.equals("9")) {
-                EmailServer server = new EmailServer() { public void send(String to, String subject, String body) { System.out.println("Email -> " + to + " | " + subject + " | " + body); } };
+                EmailServer server = new EmailServer() { public void send(String to, String subject, String body) { logger.info("Email -> " + to + " | " + subject + " | " + body); } };
                 EmailNotifier notifier = new EmailNotifier(server);
                 reminders.sendReminders(notifier);
-                System.out.println("Reminders sent");
+                logger.info("Reminders sent");
             }
         }
     }
 
     private static void userLoginFlow(BufferedReader br, LibraryService lib, SessionManager sessions, InMemoryUserRepository users, InMemoryLoanRepository loans) throws Exception {
 
-        System.out.println("User Menu");
+        logger.info("User Menu");
 
-        System.out.print("User id: ");
+        logger.info("User id: ");
         String s = br.readLine();
         if (s == null) return;
         int uid;
-        try { uid = Integer.parseInt(s.trim()); } catch (Exception e) { System.out.println("Invalid id"); return; }
+        try { uid = Integer.parseInt(s.trim()); } catch (Exception e) { logger.info("Invalid id"); return; }
         User u = users.findById(uid);
-        if (u == null) { System.out.println("Not found"); return; }
+        if (u == null) { logger.info("Not found"); return; }
         sessions.userLogin(uid);
         while (true) {
 
-            System.out.println("User Menu");
+            logger.info("User Menu");
 
-            System.out.println("1. Search for Media");
-            System.out.println("2. Borrow Book");
-            System.out.println("3. Borrow for N days");
-            System.out.println("4. Borrow CD");
-            System.out.println("5. View My Loans");
-            System.out.println("6. Pay My Fines");
-            System.out.println("7. Logout");
+            logger.info("1. Search for Media");
+            logger.info("2. Borrow Book");
+            logger.info("3. Borrow for N days");
+            logger.info("4. Borrow CD");
+            logger.info("5. View My Loans");
+            logger.info("6. Pay My Fines");
+            logger.info("7. Logout");
 
-            System.out.println("------------------------------------");
-            System.out.print("Enter choice: ");
+            logger.info("------------------------------------");
+            logger.info("Enter choice: ");
             String c = br.readLine();
             if (c == null) break;
             c = c.trim();
             if (c.equals("7")) { sessions.userLogout(); break; }
             if (c.equals("1")) {
-                System.out.print("Query: "); String q = br.readLine();
+                logger.info("Query: "); String q = br.readLine();
                 List<Media> results = lib.search(q);
-                for (Media m : results) System.out.println(m.getType() + " | id=" + m.getId() + " | title=" + m.getTitle());
+                for (Media m : results) logger.info(m.getType() + " | id=" + m.getId() + " | title=" + m.getTitle());
             } else if (c.equals("2") || c.equals("4")) {
-                System.out.print("Item id: "); int iid = Integer.parseInt(br.readLine());
-                try { Loan l = lib.borrowItem(uid, iid); System.out.println("Borrowed, due=" + l.getDueDate()); } catch (BorrowingNotAllowedException ex) { System.out.println("Blocked"); } catch (Exception ex) { System.out.println("Error"); }
+                logger.info("Item id: "); int iid = Integer.parseInt(br.readLine());
+                try { Loan l = lib.borrowItem(uid, iid); logger.info("Borrowed, due=" + l.getDueDate()); } catch (BorrowingNotAllowedException ex) { logger.info("Blocked"); } catch (Exception ex) { logger.info("Error"); }
             } else if (c.equals("5")) {
                 List<Loan> list = loans.findActiveByUserId(uid);
-                for (Loan l : list) System.out.println("Loan id=" + l.getId() + " | item=" + l.getItemId() + " | due=" + l.getDueDate());
+                for (Loan l : list) logger.info("Loan id=" + l.getId() + " | item=" + l.getItemId() + " | due=" + l.getDueDate());
             } else if (c.equals("6")) {
                 int due = lib.outstandingFines(uid);
-                System.out.println("Outstanding=" + due);
-                System.out.print("Amount: "); int amt = Integer.parseInt(br.readLine());
-                try { lib.payFine(uid, amt); System.out.println("Paid"); } catch (Exception ex) { System.out.println("Error"); }
+                logger.info("Outstanding=" + due);
+                logger.info("Amount: "); int amt = Integer.parseInt(br.readLine());
+                try { lib.payFine(uid, amt); logger.info("Paid"); } catch (Exception ex) { logger.info("Error"); }
             } else if (c.equals("3")) {
-                System.out.print("Item id: "); int iid = Integer.parseInt(br.readLine());
-                System.out.print("Days: "); int days = Integer.parseInt(br.readLine());
-                try { Loan l = lib.borrowItemForDays(uid, iid, days); System.out.println("Borrowed, due=" + l.getDueDate()); } catch (BorrowingNotAllowedException ex) { System.out.println("Blocked"); } catch (Exception ex) { System.out.println("Error"); }
+                logger.info("Item id: "); int iid = Integer.parseInt(br.readLine());
+                logger.info("Days: "); int days = Integer.parseInt(br.readLine());
+                try { Loan l = lib.borrowItemForDays(uid, iid, days); logger.info("Borrowed, due=" + l.getDueDate()); } catch (BorrowingNotAllowedException ex) { logger.info("Blocked"); } catch (Exception ex) { logger.info("Error"); }
             }
         }
     }
@@ -206,27 +210,28 @@ public class Main {
     private static void signUpMenu(BufferedReader br, LibraryService lib, InMemoryAdminRepository admins) throws Exception {
         while (true) {
 
-            System.out.println("SIGN UP");
+            logger.info("SIGN UP");
 
-            System.out.println("1. Create User Account");
-            System.out.println("2. Create Admin Account");
-            System.out.println("3. Back");
-            System.out.println("------------------------------------");
-            System.out.print("Enter choice: ");
+            logger.info("1. Create User Account");
+            logger.info("2. Create Admin Account");
+            logger.info("3. Back");
+            logger.info("------------------------------------");
+            logger.info("Enter choice: ");
             String c = br.readLine();
             if (c == null) break;
             c = c.trim();
             if (c.equals("3")) break;
             if (c.equals("1")) {
-                System.out.print("Name: "); String n = br.readLine();
-                System.out.print("Email: "); String e = br.readLine();
+                logger.info("Name: "); String n = br.readLine();
+                logger.info("Email: "); String e = br.readLine();
                 User u = lib.registerUser(n, e);
-                System.out.println("User created. id=" + u.getId());
+                logger.info("User created. id=" + u.getId());
             } else if (c.equals("2")) {
-                System.out.print("Username: "); String u = br.readLine();
-                System.out.print("Password: "); String p = br.readLine();
-                System.out.print("Email: "); String mail = br.readLine();
-                String code = String.valueOf(100000 + (int)(Math.random()*900000));
+                logger.info("Username: "); String u = br.readLine();
+                logger.info("Password: "); String p = br.readLine();
+                logger.info("Email: "); String mail = br.readLine();
+                SecureRandom secureRandom = new SecureRandom();
+                String code = String.valueOf(100000 + secureRandom.nextInt(900000));
                 EmailServer smtp = new SmtpEmailServer(
                         "smtp.gmail.com", 587, true,
                         "shahd10121@gmail.com",
@@ -234,21 +239,21 @@ public class Main {
                 );
                 String subject = "Admin Verification Code";
                 String body = "Your verification code is: " + code + "\nIf you did not request this, ignore this email.";
-                try { smtp.send(mail, subject, body); System.out.println("Verification code sent to " + mail); }
-                catch (RuntimeException ex) { System.out.println("Failed to send email: " + ex.getMessage()); continue; }
+                try { smtp.send(mail, subject, body); logger.info("Verification code sent to " + mail); }
+                catch (RuntimeException ex) { logger.info("Failed to send email: " + ex.getMessage()); continue; }
                 boolean ok = false;
                 for (int attempts = 1; attempts <= 2; attempts++) {
-                    System.out.print("Enter verification code (6 digits): ");
+                    logger.info("Enter verification code (6 digits): ");
                     String entered = br.readLine();
                     if (entered != null) entered = entered.trim();
                     if (code.equals(entered)) { ok = true; break; }
-                    else if (attempts < 2) System.out.println("Incorrect. Try again.");
+                    else if (attempts < 2) logger.info("Incorrect. Try again.");
                 }
                 if (!ok) {
-                    System.out.println("Verification failed. Signup canceled.");
+                    logger.info("Verification failed. Signup canceled.");
                 } else {
                     admins.save(new Admin(u, p, mail));
-                    System.out.println("Admin account created for '" + u + "'");
+                    logger.info("Admin account created for '" + u + "'");
                 }
             }
         }
