@@ -30,6 +30,25 @@ import libmng.time.RealTimeProvider;
 public class Main {
     private static final Logger logger = Logger.getLogger(Main.class.getName());
     
+    // Constants for repeated strings
+    private static final String SEPARATOR = "------------------------------------";
+    private static final String ENTER_CHOICE = "Enter choice: ";
+    private static final String EMAIL_PROMPT = "Email: ";
+    private static final String USER_ID_PROMPT = "User id: ";
+    private static final String ITEM_ID_PROMPT = "Item id: ";
+    private static final String BLOCKED = "Blocked";
+    private static final String ERROR = "Error";
+    private static final String QUERY_PROMPT = "Query: ";
+    private static final String ADMIN_REQUIRED = "Admin required";
+    private static final String PASSWORD_PROMPT = "Password: ";
+    private static final String USERNAME_PROMPT = "Username: ";
+    private static final String TITLE_PROMPT = "Title: ";
+    private static final String AUTHOR_PROMPT = "Author: ";
+    private static final String ISBN_PROMPT = "ISBN: ";
+    private static final String NAME_PROMPT = "Name: ";
+    private static final String AMOUNT_PROMPT = "Amount: ";
+    private static final String DAYS_PROMPT = "Days: ";
+    
     public static void main(String[] args) {
         InMemoryMediaRepository mediaRepository = new InMemoryMediaRepository();
         InMemoryUserRepository userRepository = new InMemoryUserRepository();
@@ -56,9 +75,9 @@ public class Main {
                 c = c.trim();
                 if (c.equals("4")) break;
                 if (c.equals("1")) {
-                    logger.info("Username: ");
+                    logger.info(USERNAME_PROMPT);
                     String u = br.readLine();
-                    logger.info("Password: ");
+                    logger.info(PASSWORD_PROMPT);
                     String p = br.readLine();
                     try {
                         authService.login(u, p);
@@ -72,7 +91,7 @@ public class Main {
                     signUpMenu(br, libraryService, adminRepository);
                 }
             } catch (Exception e) {
-                logger.info("Error: " + e.getMessage());
+                logger.info(String.format("Error: %s", e.getMessage()));
             }
         }
     }
@@ -88,8 +107,8 @@ public class Main {
         logger.info("2. User Login  (optional – future phases)");
         logger.info("3. Sign Up");
         logger.info("4. Exit");
-        logger.info("------------------------------------");
-        logger.info("Enter choice: ");
+        logger.info(SEPARATOR);
+        logger.info(ENTER_CHOICE);
     }
 
     private static void adminMenu(BufferedReader br, AuthService auth, LibraryService lib, ReminderService reminders, SessionManager sessions, InMemoryUserRepository users, InMemoryLoanRepository loans) throws Exception {
@@ -107,46 +126,46 @@ public class Main {
             logger.info("8. View User Fines");
             logger.info("9. Send Overdue Reminders");
             logger.info("10. Logout");
-            logger.info("------------------------------------");
-            logger.info("Enter choice: ");
+            logger.info(SEPARATOR);
+            logger.info(ENTER_CHOICE);
             String c = br.readLine();
             if (c == null) break;
             c = c.trim();
             if (c.equals("10")) { auth.logout(); break; }
             if (c.equals("1")) {
-                logger.info("Title: "); String t = br.readLine();
-                logger.info("Author: "); String a = br.readLine();
-                logger.info("ISBN: "); String i = br.readLine();
-                try { Book b = lib.addBook(t, a, i); logger.info("Added book id=" + b.getId()); } catch (AuthorizationException e) { logger.info("Admin required"); }
+                logger.info(TITLE_PROMPT); String t = br.readLine();
+                logger.info(AUTHOR_PROMPT); String a = br.readLine();
+                logger.info(ISBN_PROMPT); String i = br.readLine();
+                try { Book b = lib.addBook(t, a, i); logger.info(String.format("Added book id=%d", b.getId())); } catch (AuthorizationException e) { logger.info(ADMIN_REQUIRED); }
             } else if (c.equals("2")) {
-                logger.info("Query: "); String q = br.readLine();
+                logger.info(QUERY_PROMPT); String q = br.readLine();
                 List<Media> results = lib.search(q);
-                for (Media m : results) logger.info(m.getType() + " | id=" + m.getId() + " | title=" + m.getTitle());
+                for (Media m : results) logger.info(String.format("%s | id=%d | title=%s", m.getType(), m.getId(), m.getTitle()));
             } else if (c.equals("3")) {
-                logger.info("Name: "); String n = br.readLine();
-                logger.info("Email: "); String e = br.readLine();
+                logger.info(NAME_PROMPT); String n = br.readLine();
+                logger.info(EMAIL_PROMPT); String e = br.readLine();
                 User u = lib.registerUser(n, e);
-                logger.info("User id=" + u.getId());
+                logger.info(String.format("User id=%d", u.getId()));
             } else if (c.equals("4")) {
-                logger.info("User id: "); int id = Integer.parseInt(br.readLine());
-                try { lib.unregisterUser("admin", id); logger.info("Unregistered"); } catch (AuthorizationException ex) { logger.info("Admin required"); } catch (Exception ex) { logger.info("Blocked"); }
+                logger.info(USER_ID_PROMPT); int id = Integer.parseInt(br.readLine());
+                try { lib.unregisterUser("admin", id); logger.info("Unregistered"); } catch (AuthorizationException ex) { logger.info(ADMIN_REQUIRED); } catch (Exception ex) { logger.info(BLOCKED); }
             } else if (c.equals("5")) {
-                logger.info("User id: "); int uid = Integer.parseInt(br.readLine());
-                logger.info("Item id: "); int iid = Integer.parseInt(br.readLine());
-                try { Loan l = lib.borrowItem(uid, iid); logger.info("Borrowed, due=" + l.getDueDate()); } catch (BorrowingNotAllowedException ex) { logger.info("Blocked"); } catch (Exception ex) { logger.info("Error"); }
+                logger.info(USER_ID_PROMPT); int uid = Integer.parseInt(br.readLine());
+                logger.info(ITEM_ID_PROMPT); int iid = Integer.parseInt(br.readLine());
+                try { Loan l = lib.borrowItem(uid, iid); logger.info(String.format("Borrowed, due=%s", l.getDueDate())); } catch (BorrowingNotAllowedException ex) { logger.info(BLOCKED); } catch (Exception ex) { logger.info(ERROR); }
             } else if (c.equals("6")) {
-                logger.info("Item id: "); int iid = Integer.parseInt(br.readLine());
+                logger.info(ITEM_ID_PROMPT); int iid = Integer.parseInt(br.readLine());
                 lib.returnItem(iid);
                 logger.info("Returned if active");
             } else if (c.equals("7")) {
-                logger.info("User id: "); int uid = Integer.parseInt(br.readLine());
-                logger.info("Amount: "); int amt = Integer.parseInt(br.readLine());
-                try { lib.payFine(uid, amt); logger.info("Paid"); } catch (Exception ex) { logger.info("Error"); }
+                logger.info(USER_ID_PROMPT); int uid = Integer.parseInt(br.readLine());
+                logger.info(AMOUNT_PROMPT); int amt = Integer.parseInt(br.readLine());
+                try { lib.payFine(uid, amt); logger.info("Paid"); } catch (Exception ex) { logger.info(ERROR); }
             } else if (c.equals("8")) {
-                logger.info("User id: "); int uid = Integer.parseInt(br.readLine());
-                try { logger.info("Outstanding=" + lib.outstandingFines(uid)); } catch (Exception ex) { logger.info("Error"); }
+                logger.info(USER_ID_PROMPT); int uid = Integer.parseInt(br.readLine());
+                try { logger.info(String.format("Outstanding=%d", lib.outstandingFines(uid))); } catch (Exception ex) { logger.info(ERROR); }
             } else if (c.equals("9")) {
-                EmailServer server = new EmailServer() { public void send(String to, String subject, String body) { logger.info("Email -> " + to + " | " + subject + " | " + body); } };
+                EmailServer server = new EmailServer() { public void send(String to, String subject, String body) { logger.info(String.format("Email -> %s | %s | %s", to, subject, body)); } };
                 EmailNotifier notifier = new EmailNotifier(server);
                 reminders.sendReminders(notifier);
                 logger.info("Reminders sent");
@@ -158,7 +177,7 @@ public class Main {
 
         logger.info("User Menu");
 
-        logger.info("User id: ");
+        logger.info(USER_ID_PROMPT);
         String s = br.readLine();
         if (s == null) return;
         int uid;
@@ -178,31 +197,31 @@ public class Main {
             logger.info("6. Pay My Fines");
             logger.info("7. Logout");
 
-            logger.info("------------------------------------");
-            logger.info("Enter choice: ");
+            logger.info(SEPARATOR);
+            logger.info(ENTER_CHOICE);
             String c = br.readLine();
             if (c == null) break;
             c = c.trim();
             if (c.equals("7")) { sessions.userLogout(); break; }
             if (c.equals("1")) {
-                logger.info("Query: "); String q = br.readLine();
+                logger.info(QUERY_PROMPT); String q = br.readLine();
                 List<Media> results = lib.search(q);
-                for (Media m : results) logger.info(m.getType() + " | id=" + m.getId() + " | title=" + m.getTitle());
+                for (Media m : results) logger.info(String.format("%s | id=%d | title=%s", m.getType(), m.getId(), m.getTitle()));
             } else if (c.equals("2") || c.equals("4")) {
-                logger.info("Item id: "); int iid = Integer.parseInt(br.readLine());
-                try { Loan l = lib.borrowItem(uid, iid); logger.info("Borrowed, due=" + l.getDueDate()); } catch (BorrowingNotAllowedException ex) { logger.info("Blocked"); } catch (Exception ex) { logger.info("Error"); }
+                logger.info(ITEM_ID_PROMPT); int iid = Integer.parseInt(br.readLine());
+                try { Loan l = lib.borrowItem(uid, iid); logger.info(String.format("Borrowed, due=%s", l.getDueDate())); } catch (BorrowingNotAllowedException ex) { logger.info(BLOCKED); } catch (Exception ex) { logger.info(ERROR); }
             } else if (c.equals("5")) {
                 List<Loan> list = loans.findActiveByUserId(uid);
-                for (Loan l : list) logger.info("Loan id=" + l.getId() + " | item=" + l.getItemId() + " | due=" + l.getDueDate());
+                for (Loan l : list) logger.info(String.format("Loan id=%d | item=%d | due=%s", l.getId(), l.getItemId(), l.getDueDate()));
             } else if (c.equals("6")) {
                 int due = lib.outstandingFines(uid);
-                logger.info("Outstanding=" + due);
-                logger.info("Amount: "); int amt = Integer.parseInt(br.readLine());
-                try { lib.payFine(uid, amt); logger.info("Paid"); } catch (Exception ex) { logger.info("Error"); }
+                logger.info(String.format("Outstanding=%d", due));
+                logger.info(AMOUNT_PROMPT); int amt = Integer.parseInt(br.readLine());
+                try { lib.payFine(uid, amt); logger.info("Paid"); } catch (Exception ex) { logger.info(ERROR); }
             } else if (c.equals("3")) {
-                logger.info("Item id: "); int iid = Integer.parseInt(br.readLine());
-                logger.info("Days: "); int days = Integer.parseInt(br.readLine());
-                try { Loan l = lib.borrowItemForDays(uid, iid, days); logger.info("Borrowed, due=" + l.getDueDate()); } catch (BorrowingNotAllowedException ex) { logger.info("Blocked"); } catch (Exception ex) { logger.info("Error"); }
+                logger.info(ITEM_ID_PROMPT); int iid = Integer.parseInt(br.readLine());
+                logger.info(DAYS_PROMPT); int days = Integer.parseInt(br.readLine());
+                try { Loan l = lib.borrowItemForDays(uid, iid, days); logger.info(String.format("Borrowed, due=%s", l.getDueDate())); } catch (BorrowingNotAllowedException ex) { logger.info(BLOCKED); } catch (Exception ex) { logger.info(ERROR); }
             }
         }
     }
@@ -215,21 +234,21 @@ public class Main {
             logger.info("1. Create User Account");
             logger.info("2. Create Admin Account");
             logger.info("3. Back");
-            logger.info("------------------------------------");
-            logger.info("Enter choice: ");
+            logger.info(SEPARATOR);
+            logger.info(ENTER_CHOICE);
             String c = br.readLine();
             if (c == null) break;
             c = c.trim();
             if (c.equals("3")) break;
             if (c.equals("1")) {
-                logger.info("Name: "); String n = br.readLine();
-                logger.info("Email: "); String e = br.readLine();
+                logger.info(NAME_PROMPT); String n = br.readLine();
+                logger.info(EMAIL_PROMPT); String e = br.readLine();
                 User u = lib.registerUser(n, e);
-                logger.info("User created. id=" + u.getId());
+                logger.info(String.format("User created. id=%d", u.getId()));
             } else if (c.equals("2")) {
-                logger.info("Username: "); String u = br.readLine();
-                logger.info("Password: "); String p = br.readLine();
-                logger.info("Email: "); String mail = br.readLine();
+                logger.info(USERNAME_PROMPT); String u = br.readLine();
+                logger.info(PASSWORD_PROMPT); String p = br.readLine();
+                logger.info(EMAIL_PROMPT); String mail = br.readLine();
                 SecureRandom secureRandom = new SecureRandom();
                 String code = String.valueOf(100000 + secureRandom.nextInt(900000));
                 EmailServer smtp = new SmtpEmailServer(
@@ -238,9 +257,9 @@ public class Main {
                         "mpmv nrmp jqdz wsia"
                 );
                 String subject = "Admin Verification Code";
-                String body = "Your verification code is: " + code + "\nIf you did not request this, ignore this email.";
-                try { smtp.send(mail, subject, body); logger.info("Verification code sent to " + mail); }
-                catch (RuntimeException ex) { logger.info("Failed to send email: " + ex.getMessage()); continue; }
+                String body = String.format("Your verification code is: %s\nIf you did not request this, ignore this email.", code);
+                try { smtp.send(mail, subject, body); logger.info(String.format("Verification code sent to %s", mail)); }
+                catch (RuntimeException ex) { logger.info(String.format("Failed to send email: %s", ex.getMessage())); continue; }
                 boolean ok = false;
                 for (int attempts = 1; attempts <= 2; attempts++) {
                     logger.info("Enter verification code (6 digits): ");
@@ -253,7 +272,7 @@ public class Main {
                     logger.info("Verification failed. Signup canceled.");
                 } else {
                     admins.save(new Admin(u, p, mail));
-                    logger.info("Admin account created for '" + u + "'");
+                    logger.info(String.format("Admin account created for '%s'", u));
                 }
             }
         }
