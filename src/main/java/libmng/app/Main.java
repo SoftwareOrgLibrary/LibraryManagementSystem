@@ -1,6 +1,7 @@
 package libmng.app;
  
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.security.SecureRandom;
 import java.util.List;
@@ -51,12 +52,12 @@ public class Main {
     private static final String DAYS_PROMPT = "Days: ";
     
     // Helper methods to reduce duplication
-    private static String readInput(BufferedReader br, String prompt) throws Exception {
+    private static String readInput(BufferedReader br, String prompt) throws IOException {
         logger.info(prompt);
         return br.readLine();
     }
     
-    private static int readIntInput(BufferedReader br, String prompt) throws Exception {
+    private static int readIntInput(BufferedReader br, String prompt) throws IOException, NumberFormatException {
         logger.info(prompt);
         return Integer.parseInt(br.readLine());
     }
@@ -345,7 +346,7 @@ public class Main {
                         "mpmv nrmp jqdz wsia"
                 );
                 String subject = "Admin Verification Code";
-                String body = String.format("Your verification code is: %s\nIf you did not request this, ignore this email.", code);
+                String body = String.format("Your verification code is: %s%nIf you did not request this, ignore this email.", code);
                 try {
                     smtp.send(mail, subject, body);
                     logInfoFormat("Verification code sent to %s", mail);
