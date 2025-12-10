@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 
-public class AppTimeTests {
+ class AppTimeTests {
     @Test
     void runMain() {
         Main.main(new String[]{"print"});

@@ -5,7 +5,7 @@ import libmng.repo.InMemoryAdminRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class AdminRepositoryUpdateTest {
+ class AdminRepositoryUpdateTest {
     @Test
     void updateExistingAdmin() {
         InMemoryAdminRepository repo = new InMemoryAdminRepository();

@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 
-public class DomainEntityTests {
+ class DomainEntityTests {
     @Test
     void bookEqualsAndHashVariants() {
         Book b1 = new Book("t","a","i");
