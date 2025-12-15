@@ -109,5 +109,32 @@ actual email message sending via SMTP protocol.
 calculating fines for books based on specific rules (e.g., 5 units per day of delay).
 49. **CDFineStrategy**: A CD fine calculation strategy (CDFineStrategy) was developed, calculating
 fines for CDs based on different rules than books (e.g., 10 units per day of delay).
-50. **TimeProvider Abstraction**: A time provider abstraction (TimeProvider Interface) was
+51. **TimeProvider Abstraction**: A time provider abstraction (TimeProvider Interface) was
 created, allowing separation of time logic from implementation, making it easier to test timedependent code by using a mock time provider in tests.
+
+This image show that there are two projects:
+1- Libmng
+2- LibraryManagementsystem
+the first Project is made just to show the coverage result of the java project
+And the second Project is made to show the quality analysis for it
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
